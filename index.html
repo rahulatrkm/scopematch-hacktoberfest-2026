@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta name="description" content="Match a client brief to freelance service packages with open-weight AI that runs in your browser.">
+  <title>ScopeMatch | Private AI intake for freelancers</title>
+  <style>
+    :root { color-scheme: light; --ink: #172e2a; --muted: #52635e; --green: #14644e; --cream: #f5f6ef; --line: #d4ddd5; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--cream); color: var(--ink); font: 16px/1.6 system-ui, sans-serif; }
+    a { color: var(--green); }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    button:disabled { cursor: wait; opacity: .65; }
+    :focus-visible { outline: 3px solid #af4839; outline-offset: 4px; }
+    .wrap { width: min(1120px, calc(100% - 40px)); margin: auto; }
+    header { padding: 24px 0; border-bottom: 1px solid var(--line); }
+    nav { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+    .brand { color: var(--ink); font-weight: 850; font-size: 1.25rem; text-decoration: none; letter-spacing: -.04em; }
+    .tag { font-size: .8rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    .hero { padding: 52px 0 34px; max-width: 820px; }
+    .eyebrow { color: var(--green); margin: 0 0 12px; }
+    h1 { font-size: clamp(2.35rem, 5vw, 4rem); line-height: 1.06; letter-spacing: -.055em; margin: 0 0 22px; }
+    h2, h3 { line-height: 1.25; letter-spacing: -.025em; }
+    h2 { margin: 0 0 14px; font-size: 1.55rem; }
+    h3 { margin: 0 0 10px; font-size: 1.15rem; }
+    p { margin: 0 0 16px; }
+    .lede { color: var(--muted); font-size: 1.12rem; max-width: 690px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, .8fr); align-items: start; gap: 22px; }
+    .panel { background: white; border: 1px solid var(--line); border-radius: 18px; padding: 28px; }
+    .step { display: inline-block; color: var(--green); font-size: .78rem; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 10px; }
+    label { display: block; font-weight: 700; margin: 0 0 7px; }
+    textarea, input, select { width: 100%; border: 1px solid #879b91; border-radius: 9px; padding: 11px 12px; color: var(--ink); background: white; }
+    textarea { min-height: 155px; resize: vertical; }
+    .hint { color: var(--muted); font-size: .86rem; margin: 6px 0 18px; }
+    .settings { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    .settings label { font-size: .88rem; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin: 22px 0 14px; }
+    .primary, .secondary { border-radius: 9px; padding: 11px 16px; font-weight: 750; border: 1px solid var(--green); }
+    .primary { color: white; background: var(--green); }
+    .secondary { color: var(--green); background: white; }
+    .privacy { padding: 14px 16px; background: #eef5ef; border-radius: 10px; font-size: .85rem; }
+    .privacy strong { display: block; margin-bottom: 3px; }
+    .status { color: var(--muted); font-size: .9rem; min-height: 28px; margin-top: 16px; overflow-wrap: anywhere; }
+    progress { width: 100%; accent-color: var(--green); }
+    .error { color: #85241d; background: #fff1ed; border: 1px solid #e6aca0; padding: 13px; border-radius: 9px; margin-top: 14px; overflow-wrap: anywhere; }
+    .aside-list { padding-left: 20px; margin: 18px 0; }
+    .aside-list li { margin: 12px 0; }
+    .aside-note { border-top: 1px solid var(--line); padding-top: 18px; font-size: .9rem; color: var(--muted); }
+    .results { margin-top: 36px; }
+    .results-intro { color: var(--muted); max-width: 760px; }
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .card { background: white; border: 1px solid var(--line); border-radius: 15px; padding: 22px; display: flex; flex-direction: column; }
+    .card.selected { border: 2px solid var(--green); padding: 21px; }
+    .score { color: var(--green); font-size: .82rem; font-weight: 750; margin-bottom: 13px; }
+    .card p { font-size: .91rem; }
+    .price { font-size: 1.5rem; font-weight: 800; letter-spacing: -.04em; margin: auto 0 0; padding-top: 6px; }
+    .card .secondary { width: 100%; margin-top: 12px; }
+    .warning { background: #fff1d6; color: #674409; border-radius: 10px; padding: 13px 16px; }
+    .quote { margin-top: 22px; }
+    .quote pre { white-space: pre-wrap; overflow-wrap: anywhere; font: .91rem/1.7 ui-monospace, monospace; margin: 18px 0; background: #f7f8f4; border-radius: 10px; padding: 20px; }
+    details { margin: 32px 0; padding: 22px; border: 1px solid var(--line); border-radius: 13px; }
+    summary { cursor: pointer; font-weight: 750; }
+    .catalog { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 18px; }
+    .catalog p { color: var(--muted); font-size: .9rem; }
+    footer { padding: 20px 0 36px; color: var(--muted); font-size: .84rem; }
+    [hidden] { display: none !important; }
+    @media (max-width: 800px) { .layout, .cards { grid-template-columns: 1fr; } .hero { padding-top: 36px; } .card .price { margin-top: 8px; } }
+    @media (max-width: 480px) { .wrap { width: calc(100% - 24px); } .panel { padding: 20px; } .settings, .catalog { grid-template-columns: 1fr; } nav .tag { font-size: .65rem; } }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="wrap" aria-label="Main">
+      <a class="brand" href="./">ScopeMatch<span aria-hidden="true"> /</span></a>
+      <span class="tag">Open weights. Private briefs.</span>
+    </nav>
+  </header>
+  <main class="wrap">
+    <section class="hero" aria-labelledby="page-title">
+      <p class="eyebrow tag">A small tool for the business of freelancing</p>
+      <h1 id="page-title">A better first quote.<br>Not another cloud inbox.</h1>
+      <p class="lede">Turn a short client brief into a service shortlist and a reviewable price range. Open-weight AI finds the match. Your own rates do the math.</p>
+    </section>
+    <div class="layout">
+      <section class="panel" aria-labelledby="intake-title">
+        <span class="step">01 / Understand the request</span>
+        <h2 id="intake-title">What does your client need?</h2>
+        <form id="intake-form" novalidate>
+          <label for="brief">Client brief</label>
+          <textarea id="brief" name="brief" minlength="20" maxlength="800" aria-describedby="brief-hint" placeholder="A short description of the work, the business, and the outcome..." required></textarea>
+          <p id="brief-hint" class="hint">20-800 characters, in English. Use a focused summary, not personal data or credentials.</p>
+          <div class="settings">
+            <div><label for="rate">Hourly rate</label><input id="rate" type="number" min="0.01" max="10000" step="0.01" value="75" required></div>
+            <div><label for="currency">Currency</label><select id="currency"><option>USD</option><option>EUR</option><option>GBP</option><option>INR</option></select></div>
+            <div><label for="buffer">Buffer (%)</label><input id="buffer" type="number" min="0" max="100" step="1" value="15" required></div>
+          </div>
+          <div class="actions">
+            <button id="analyze" class="primary" type="submit">Find matching services</button>
+            <button id="sample" class="secondary" type="button">Try a sample brief</button>
+          </div>
+          <div class="privacy"><strong>Your brief stays in this tab.</strong>First use downloads the public AI library and model from jsDelivr and Hugging Face (tens of MB). Inference is local. No account, API key, analytics, or brief storage.</div>
+          <p id="status" class="status" role="status">Ready when you are. The model loads only when you analyze a brief.</p>
+          <progress id="progress" aria-label="AI model download" hidden></progress>
+          <div id="error" class="error" role="alert" tabindex="-1" hidden></div>
+        </form>
+      </section>
+      <aside class="panel" aria-labelledby="workflow-title">
+        <span class="step">A human stays in charge</span>
+        <h2 id="workflow-title">Intake, without the guesswork.</h2>
+        <ol class="aside-list">
+          <li><strong>Match the intent.</strong> MiniLM compares the brief with six transparent service descriptions.</li>
+          <li><strong>Keep pricing explainable.</strong> Starter hours x your rate, plus your chosen buffer. AI never invents a price.</li>
+          <li><strong>Review before sharing.</strong> Choose a scope, ask the follow-up questions, and export a plain-text draft.</li>
+        </ol>
+        <p class="aside-note">Built for freelancers and small studios that sell repeatable services. The catalog is illustrative, not a promise about how long your client's work will take.</p>
+      </aside>
+    </div>
+    <section id="results" class="results" aria-labelledby="results-title" hidden>
+      <span class="step">02 / Review the shortlist</span>
+      <h2 id="results-title" tabindex="-1">The closest service matches</h2>
+      <p class="results-intro">Similarity is a cosine score, not a probability or a guarantee. Check each scope before choosing. Price ranges exclude taxes, subscriptions, and third-party costs.</p>
+      <p id="low-match" class="warning" hidden>These are low-overlap matches (top cosine score below 0.30). This brief may be outside the catalog. Clarify the work before choosing any scope.</p>
+      <div id="cards" class="cards"></div>
+      <section id="quote" class="panel quote" aria-labelledby="quote-title" hidden>
+        <span class="step">03 / Make it yours</span>
+        <h2 id="quote-title">A draft, not a commitment</h2>
+        <p>Confirm the hours, exclusions, and client requirements before sending this anywhere.</p>
+        <pre id="quote-text"></pre>
+        <button id="download" class="primary" type="button">Download draft quote (.txt)</button>
+      </section>
+    </section>
+    <details>
+      <summary>See the service catalog and scoping assumptions</summary>
+      <div id="catalog" class="catalog"></div>
+      <p class="hint">The catalog and hour ranges live in the source file. Replace them with services you actually sell. MiniLM is an English-language semantic similarity model; it is not a requirements analyst.</p>
+    </details>
+  </main>
+  <footer class="wrap">
+    <p>Open source: original app code under MIT. AI: <a href="https://huggingface.co/Xenova/all-MiniLM-L6-v2">all-MiniLM-L6-v2</a> and <a href="https://github.com/huggingface/transformers.js">Transformers.js</a> (Apache-2.0). No proprietary model API.</p>
+    <p>Created for Hacktoberfest 2026 Week 2: Side Hustle. This prototype has no claimed paying customers.</p>
+  </footer>
+  <script type="module">
+    const MODEL = "Xenova/all-MiniLM-L6-v2";
+    const REVISION = "751bff37182d3f1213fa05d7196b954e230abad9";
+    const LIBRARY = "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1/dist/transformers.min.js";
+    const SERVICES = [
+      { id: "landing", name: "Landing page sprint", min: 8, max: 16,
+        description: "A responsive marketing website with business information, opening hours, a menu or service list, search-friendly content and a contact form.",
+        excludes: "Online payments, a product catalog, custom photography, and ongoing hosting.",
+        questions: ["How many pages and who supplies the copy?", "Do you have a domain and hosting?", "What should a visitor do next?"] },
+      { id: "store", name: "Online store setup", min: 16, max: 28,
+        description: "An ecommerce online shop with a product catalog, shopping cart, checkout, payment setup, shipping rules and product inventory.",
+        excludes: "Platform fees, product photography, custom payment gateways, and inventory migration.",
+        questions: ["How many products and variants?", "Which countries and shipping rules?", "Which store platform and payment provider?"] },
+      { id: "automation", name: "Spreadsheet automation", min: 6, max: 14,
+        description: "Automate repetitive Excel or Google Sheets work, copying rows, data entry, CSV imports, spreadsheet cleanup and recurring report generation.",
+        excludes: "Paid integrations, unrestricted data migration, and access to production systems.",
+        questions: ["Can you provide anonymized input and expected output?", "How often does the process run?", "What should happen when a row is invalid?"] },
+      { id: "accessibility", name: "Accessibility audit", min: 6, max: 12,
+        description: "Audit a website for WCAG accessibility issues, keyboard navigation, screen reader labels, form errors, color contrast and accessible content.",
+        excludes: "A legal compliance certification, full remediation, and exhaustive assistive-technology testing.",
+        questions: ["Which pages and user journeys matter most?", "Which accessibility standard is your target?", "Who will implement the findings?"] },
+      { id: "analytics", name: "Analytics dashboard", min: 12, max: 24,
+        description: "A visual business intelligence dashboard with sales metrics, revenue trends, marketing KPIs, charts, filters and summaries from existing business data.",
+        excludes: "Data warehouse setup, paid analytics subscriptions, and cleaning unknown source systems.",
+        questions: ["Which decisions should the dashboard support?", "What are the source systems and data quality?", "Who can view each metric?"] },
+      { id: "booking", name: "Booking workflow", min: 8, max: 18,
+        description: "An appointment scheduling and booking workflow for a service business, with calendar availability, customer intake, appointment reminders and rescheduling.",
+        excludes: "Subscription costs, payment processing, and sensitive medical-data workflows.",
+        questions: ["How many staff calendars and locations?", "What are the cancellation rules?", "Which reminders and intake fields are necessary?"] }
+    ];
+    const $ = (id) => document.getElementById(id);
+    const form = $("intake-form");
+    const brief = $("brief");
+    const rate = $("rate");
+    const buffer = $("buffer");
+    const currency = $("currency");
+    const status = $("status");
+    const errorBox = $("error");
+    const progress = $("progress");
+    let extractor;
+    let matches = [];
+    let selectedId = null;
+    let analyzedBrief = "";
+    let busy = false;
+    let draft = "";
+
+    function showError(message) {
+      errorBox.textContent = message;
+      errorBox.hidden = false;
+      $("download").disabled = true;
+      errorBox.focus();
+    }
+    function clearError() {
+      errorBox.hidden = true;
+      errorBox.textContent = "";
+    }
+    function settings() {
+      const hourly = Number(rate.value);
+      const contingency = Number(buffer.value);
+      if (!rate.value.trim() || !Number.isFinite(hourly) || hourly <= 0 || hourly > 10000 || rate.validity.stepMismatch) {
+        throw new Error("Enter an hourly rate between 0.01 and 10,000, with at most two decimal places.");
+      }
+      if (!buffer.value.trim() || !Number.isInteger(contingency) || contingency < 0 || contingency > 100) {
+        throw new Error("Enter a whole-number buffer from 0 to 100 percent.");
+      }
+      if (!["USD", "EUR", "GBP", "INR"].includes(currency.value)) {
+        throw new Error("Choose a supported currency.");
+      }
+      return { rateCents: Math.round(hourly * 100), contingency, currency: currency.value };
+    }
+    function money(cents, code) {
+      return new Intl.NumberFormat("en-US", { style: "currency", currency: code }).format(cents / 100);
+    }
+    function estimate(service, config) {
+      const factor = 1 + config.contingency / 100;
+      return {
+        low: Math.round(service.min * config.rateCents * factor),
+        high: Math.round(service.max * config.rateCents * factor)
+      };
+    }
+    function element(tag, text, className) {
+      const node = document.createElement(tag);
+      node.textContent = text;
+      if (className) node.className = className;
+      return node;
+    }
+    function resetResults() {
+      matches = [];
+      selectedId = null;
+      draft = "";
+      $("cards").replaceChildren();
+      $("results").hidden = true;
+      $("quote").hidden = true;
+      $("quote-text").textContent = "";
+      $("download").disabled = true;
+    }
+    function renderQuote(config) {
+      const service = SERVICES.find((item) => item.id === selectedId);
+      if (!service) {
+        $("quote").hidden = true;
+        return;
+      }
+      const total = estimate(service, config);
+      draft = [
+        "SCOPING DRAFT - HUMAN REVIEW REQUIRED",
+        "",
+        "Service: " + service.name,
+        "Client brief: " + analyzedBrief,
+        "",
+        "Proposed starting scope: " + service.description,
+        "Illustrative hours: " + service.min + "-" + service.max,
+        "Hourly rate: " + money(config.rateCents, config.currency) + " " + config.currency,
+        "Contingency buffer: " + config.contingency + "%",
+        "Estimated range: " + money(total.low, config.currency) + " - " + money(total.high, config.currency) + " " + config.currency,
+        "",
+        "Exclusions: " + service.excludes,
+        "Taxes, subscriptions, and third-party costs are not included.",
+        "",
+        "Questions to resolve before agreeing a scope:",
+        ...service.questions.map((question, index) => (index + 1) + ". " + question),
+        "",
+        "This is a draft based on a sample service catalog, not an accepted quote.",
+        "AI shortlisted the service. The price is deterministic arithmetic, not an AI prediction."
+      ].join("\n");
+      $("quote-text").textContent = draft;
+      $("quote").hidden = false;
+      $("download").disabled = false;
+    }
+    function renderResults() {
+      const config = settings();
+      $("cards").replaceChildren();
+      for (const match of matches) {
+        const service = match.service;
+        const total = estimate(service, config);
+        const card = element("article", "", "card" + (selectedId === service.id ? " selected" : ""));
+        card.append(element("div", "Cosine similarity " + match.score.toFixed(3), "score"));
+        card.append(element("h3", service.name), element("p", service.description));
+        card.append(element("div", money(total.low, config.currency) + " - " + money(total.high, config.currency), "price"));
+        card.append(element("p", service.min + "-" + service.max + " starter hours | " + config.contingency + "% buffer", "hint"));
+        const choose = element("button", selectedId === service.id ? "Selected: " + service.name : "Choose " + service.name, "secondary");
+        choose.type = "button";
+        choose.setAttribute("aria-pressed", String(selectedId === service.id));
+        choose.addEventListener("click", () => {
+          selectedId = service.id;
+          clearError();
+          try {
+            renderResults();
+            $("quote-title").setAttribute("tabindex", "-1");
+            $("quote-title").focus();
+          } catch (error) {
+            showError(error.message);
+          }
+        });
+        card.append(choose);
+        $("cards").append(card);
+      }
+      $("results").hidden = false;
+      $("low-match").hidden = matches[0].score >= 0.30;
+      renderQuote(config);
+    }
+    async function loadModel() {
+      if (extractor) return extractor;
+      status.textContent = "Loading the open-source inference library. No brief is sent with these requests.";
+      const { pipeline, env } = await import(LIBRARY);
+      env.allowLocalModels = false;
+      env.backends.onnx.wasm.numThreads = 1;
+      extractor = await pipeline("feature-extraction", MODEL, {
+        revision: REVISION,
+        dtype: "q8",
+        device: "wasm",
+        progress_callback: (event) => {
+          if (event.status === "progress" && Number.isFinite(event.progress)) {
+            progress.value = Math.max(0, Math.min(100, event.progress));
+            progress.max = 100;
+            status.textContent = "Downloading " + event.file + ": " + Math.round(event.progress) + "%";
+          }
+        }
+      });
+      return extractor;
+    }
+    function setBusy(value) {
+      busy = value;
+      $("analyze").disabled = value;
+      $("sample").disabled = value;
+      brief.readOnly = value;
+      rate.disabled = value;
+      buffer.disabled = value;
+      currency.disabled = value;
+      progress.hidden = !value;
+      if (value) progress.removeAttribute("value");
+      form.setAttribute("aria-busy", String(value));
+    }
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (busy) return;
+      clearError();
+      resetResults();
+      const text = brief.value.trim();
+      try {
+        settings();
+        if (text.length < 20 || text.length > 800) {
+          throw new Error("Enter a focused client brief of 20-800 characters.");
+        }
+      } catch (error) {
+        showError(error.message);
+        return;
+      }
+      setBusy(true);
+      try {
+        const model = await loadModel();
+        status.textContent = "Comparing the brief and service descriptions locally...";
+        const started = performance.now();
+        const output = await model([text, ...SERVICES.map((service) => service.description)], {
+          pooling: "mean", normalize: true
+        });
+        const vectors = output.tolist();
+        if (!Array.isArray(vectors) || vectors.length !== SERVICES.length + 1 ||
+            vectors.some((vector) => !Array.isArray(vector) || vector.length !== 384 ||
+              vector.some((value) => !Number.isFinite(value)))) {
+          throw new Error("The AI model returned invalid embedding data. No matches or quotes were generated.");
+        }
+        const query = vectors[0];
+        matches = SERVICES.map((service, index) => ({
+          service,
+          score: Math.max(-1, Math.min(1, query.reduce((sum, value, dimension) => sum + value * vectors[index + 1][dimension], 0)))
+        })).sort((a, b) => b.score - a.score).slice(0, 3);
+        analyzedBrief = text;
+        renderResults();
+        status.textContent = "Three matches computed locally in " + ((performance.now() - started) / 1000).toFixed(2) + "s. Your brief was not uploaded.";
+        $("results-title").focus();
+      } catch (error) {
+        console.error("ScopeMatch local analysis failed:", error);
+        resetResults();
+        status.textContent = "Analysis failed. No substitute or simulated AI results were used.";
+        showError("Local AI could not complete the analysis: " + error.message + " If asset downloads failed, restore your connection and reload this page.");
+      } finally {
+        setBusy(false);
+      }
+    });
+    brief.addEventListener("input", () => {
+      if (matches.length) {
+        resetResults();
+        status.textContent = "Brief changed. Analyze it again before creating a quote.";
+      }
+      clearError();
+    });
+    for (const input of [rate, buffer, currency]) {
+      input.addEventListener("input", () => {
+        clearError();
+        if (!matches.length) return;
+        try {
+          renderResults();
+        } catch (error) {
+          $("quote").hidden = true;
+          showError(error.message);
+        }
+      });
+    }
+    $("sample").addEventListener("click", () => {
+      brief.value = "I run a small bakery and need a simple mobile-friendly website with our menu, opening hours and a contact form. No online ordering yet.";
+      form.requestSubmit();
+    });
+    $("download").addEventListener("click", () => {
+      try {
+        settings();
+        if (!selectedId || !draft || brief.value.trim() !== analyzedBrief) {
+          throw new Error("Analyze the current brief and choose a service before exporting.");
+        }
+        const url = URL.createObjectURL(new Blob([draft], { type: "text/plain;charset=utf-8" }));
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "scopematch-quote.txt";
+        link.hidden = true;
+        document.body.append(link);
+        link.click();
+        link.remove();
+        status.textContent = "Draft download requested. Check your browser downloads and review the scope before sharing.";
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      } catch (error) {
+        showError(error.message);
+      }
+    });
+    for (const service of SERVICES) {
+      const item = element("section", "");
+      item.append(element("h3", service.name), element("p", service.description));
+      item.append(element("p", service.min + "-" + service.max + " illustrative hours. Excludes: " + service.excludes));
+      $("catalog").append(item);
+    }
+  </script>
+</body>
+</html>
